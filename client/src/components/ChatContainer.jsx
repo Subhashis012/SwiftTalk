@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import assets from "../assets/assets";
 import { formatMessageTime } from "../lib/utils";
 import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
 import toast from "react-hot-toast";
+import { Info, X } from "lucide-react";
+import RightSidebar from "./RightSidebar";
 
 const ChatContainer = () => {
   const { authUser, onlineUsers } = useContext(AuthContext);
@@ -11,6 +13,7 @@ const ChatContainer = () => {
     useContext(ChatContext);
 
   const [input, setInput] = useState("");
+  const [showInfo, setShowInfo] = useState(false);
 
   const scollEnd = useRef(null);
 
@@ -18,29 +21,29 @@ const ChatContainer = () => {
     e.preventDefault();
     if (input.trim() === "") return null;
 
-    await sendMessage({text: input.trim()})
+    await sendMessage({ text: input.trim() });
     setInput("");
   };
 
   const handleSendImage = async (e) => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
-        toast.error("Please select a valid image file.");
-        return;
-    } 
+      toast.error("Please select a valid image file.");
+      return;
+    }
     const reader = new FileReader();
     reader.onloadend = async () => {
-        await sendMessage({image: reader.result});
-        e.target.value = ""; // Reset the input field
-    }
+      await sendMessage({ image: reader.result });
+      e.target.value = ""; // Reset the input field
+    };
     reader.readAsDataURL(file);
-  }
+  };
 
   useEffect(() => {
-    if(selectedUser) {
-        getMessages(selectedUser._id);
+    if (selectedUser) {
+      getMessages(selectedUser._id);
     }
-  }, [selectedUser])
+  }, [selectedUser]);
 
   useEffect(() => {
     if (scollEnd.current && messages) {
@@ -49,21 +52,34 @@ const ChatContainer = () => {
   }, [messages]);
 
   return selectedUser ? (
+    
     <div className="h-full overflow-scroll relative backdrop-blur-lg">
       {/*---------- header ----------*/}
       <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
-        <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className="w-8 rounded-full" />
+        <img
+          src={selectedUser.profilePic || assets.avatar_icon}
+          alt=""
+          className="w-8 rounded-full"
+        />
         <p className="flex-1 text-lg text-white flex items-center gap-2">
           {selectedUser.fullName}
-          {onlineUsers.includes(selectedUser._id) && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
+          {onlineUsers.includes(selectedUser._id) && (
+            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+          )}
         </p>
-        <img
-          onClick={() => setSelectedUser(null)}
-          src={assets.arrow_icon}
-          alt=""
-          className="md:hidden max-w-7"
-        />
-        <img src={assets.help_icon} alt="" className="max-md:hidden max-w-5" />
+        {/* Icons: Info + Close */}
+        <div className="flex items-center gap-3">
+          <Info
+            onClick={() => setShowInfo(!showInfo)}
+            className="w-5 h-5 text-white"
+          />
+          <X
+            onClick={() => setSelectedUser(null)}
+            className="w-6 h-6 text-white cursor-pointer"
+          />
+        </div>
+
+        {/* <img src={assets.help_icon} alt="" className="max-md:hidden max-w-5" /> */}
       </div>
       {/* ------ Chat --------*/}
       <div className="flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-3 pb-6">
@@ -121,7 +137,13 @@ const ChatContainer = () => {
             placeholder="Type a message"
             className="flex-1 text-sm p-3 border-none rounded-lg outline-none text-white placeholder-gray-400"
           />
-          <input onChange={handleSendImage} type="file" id="image" accept="image/png, image/jpeg" hidden />
+          <input
+            onChange={handleSendImage}
+            type="file"
+            id="image"
+            accept="image/png, image/jpeg"
+            hidden
+          />
           <label htmlFor="image">
             <img
               src={assets.gallery_icon}
@@ -137,7 +159,29 @@ const ChatContainer = () => {
           className="w-7 cursor-pointer"
         />
       </div>
+
+      {/* Right Sidebar - Mobile & Desktop */}
+      {showInfo && (
+        <>
+          {/* Mobile backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 z-10 md:hidden"
+            onClick={() => setShowInfo(false)}
+          />
+          <div className="absolute md:static right-0 top-0 z-20 h-full w-[300px] bg-[#1a1a2e]">
+            <RightSidebar selectedUser={selectedUser} />
+            {/* Close Icon on top right */}
+            <div className="absolute top-3 right-3 md:hidden">
+              <X
+                onClick={() => setShowInfo(false)}
+                className="text-white cursor-pointer w-6 h-6"
+              />
+            </div>
+          </div>
+        </>
+      )}
     </div>
+    
   ) : (
     <div className="flex flex-col items-center justify-center gap-2 text-gray-500 bg-white/10 max-md:hidden">
       <img src={assets.logo_icon} alt="" className="max-w-16" />

@@ -60,7 +60,7 @@ export const login = async (req, res) => {
         });
     } catch (error) {
         console.error("Error during login:", error.message);
-        return res.json({ success: false, message: "Internal server error" });
+        return res.json({ success: false, message: "Invalid email or password" });
     }
     
     
