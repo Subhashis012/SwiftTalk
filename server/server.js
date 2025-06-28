@@ -28,10 +28,25 @@ io.on("connection", (socket) => {
 
   if (userId) {
     userSocketMap[userId] = socket.id;
+    socket.join(userId);
   }
 
   // Emit online users to all clients
   io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+  // ✅ Typing event
+  socket.on("typing", ({ to }) => {
+    if (to) {
+      io.to(to).emit("userTyping", { from: userId });
+    }
+  });
+
+  // ✅ Stop typing event
+  socket.on("stopTyping", ({ to }) => {
+    if (to) {
+      io.to(to).emit("userStopTyping", { from: userId });
+    }
+  });
 
   // Handle user disconnection
   socket.on("disconnect", () => {
