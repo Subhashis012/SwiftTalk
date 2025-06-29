@@ -17,6 +17,7 @@ const Sidebar = () => {
   const { logout, onlineUsers } = useContext(AuthContext);
 
   const [input, setInput] = useState("");
+  const [showMenu, setShowMenu] = useState(false);
 
   const navigate = useNavigate();
 
@@ -24,38 +25,47 @@ const Sidebar = () => {
     ? users.filter((user) =>
         user.fullName.toLowerCase().includes(input.toLowerCase())
       )
-    : users; 
-    
+    : users;
 
   useEffect(() => {
     getUsers();
   }, [onlineUsers]);
 
   return (
-    <div
-      className="bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white"
-    >
+    <div className="bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white">
       <div className="pb-5">
         <div className="flex justify-between items-center">
           <img src={assets.logo} alt="logo" className="max-w-40" />
-          <div className="relative py-2 group">
+          <div className="relative py-2">
             <img
               src={assets.menu_icon}
-              alt="logo"
+              alt="menu"
               className="max-h-5 cursor-pointer"
+              onClick={() => setShowMenu((prev) => !prev)}
             />
-            <div className="absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100 hidden group-hover:block">
-              <p
-                onClick={() => navigate("/profile")}
-                className="cursor-pointer text-sm"
-              >
-                Edit Profile
-              </p>
-              <hr className="my-2 border-t border-gray-500" />
-              <p onClick={() => logout()} className="cursor-pointer text-sm">
-                Logout
-              </p>
-            </div>
+            {showMenu && (
+              <div className="absolute top-full right-0 z-20 w-32 p-5 rounded-md bg-[#282142] border border-gray-600 text-gray-100">
+                <p
+                  onClick={() => {
+                    navigate("/profile");
+                    setShowMenu(false); // close menu on click
+                  }}
+                  className="cursor-pointer text-sm"
+                >
+                  Edit Profile
+                </p>
+                <hr className="my-2 border-t border-gray-500" />
+                <p
+                  onClick={() => {
+                    logout();
+                    setShowMenu(false); // close menu on click
+                  }}
+                  className="cursor-pointer text-sm"
+                >
+                  Logout
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -75,7 +85,7 @@ const Sidebar = () => {
           <div
             onClick={() => {
               setSelectedUser(user);
-              setUnseenMessages((prev) => ({...prev, [user._id]: 0}))
+              setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
             }}
             key={index}
             className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer max-sm:text-sm ${
