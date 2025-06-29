@@ -11,6 +11,16 @@ import { Server } from "socket.io";
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+  "https://swift-talk-delta.vercel.app", // Your frontend on Vercel
+  "http://localhost:3000",               // Optional: for local development
+];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 // Initialize Socket.IO
 export const io = new Server(server, {
   cors: {
