@@ -24,10 +24,7 @@ const Sidebar = () => {
     ? users.filter((user) =>
         user.fullName.toLowerCase().includes(input.toLowerCase())
       )
-    : users;
-
-    console.log(users);
-    
+    : users; 
     
 
   useEffect(() => {
@@ -36,9 +33,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white ${
-        selectedUser ? "max-md:hidden" : ""
-      }`}
+      className={`bg-[#8185B2]/10 h-full p-5 rounded-r-xl overflow-y-scroll text-white `}
     >
       <div className="pb-5">
         <div className="flex justify-between items-center">
